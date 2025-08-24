@@ -14,7 +14,7 @@ import { useContentFilter } from './ContentFilterContext'
 export const MainContent = () => {
    const [formModalOpen, setFormModelOpen] = useState(false)
    const [shareModalOpen, setShareModalOpen] = useState(false)
-   const { contents, res, onDelete } = useContent()
+   const { contents, fetchContents, onDelete } = useContent()
    const navigate = useNavigate()
    const { filter } = useContentFilter()
 
@@ -26,25 +26,21 @@ export const MainContent = () => {
    const filteredContents = contents.filter((item) =>
       filter === 'All' ? true : item.type === filter
    )
+
    const handleShareBtn = async () => {
-      const res = await handleBrainLink(true)
+      await handleBrainLink(true)
       toast.success('Link copied to your clipboard', {
-         style: {
-            fontSize: '20px',
-            color: 'green',
-         },
+         style: { fontSize: '20px', color: 'green' },
          duration: 3000,
       })
    }
 
    useEffect(() => {
-      res()
-      //@ts-ignore
       if (window.twttr) {
          //@ts-ignore
          window.twttr.widgets.load()
       }
-   }, [formModalOpen, filteredContents])
+   }, [formModalOpen, contents]) // react to content changes safely
 
    return (
       <div className="bg-[#F9FBFC]">
@@ -53,23 +49,18 @@ export const MainContent = () => {
             open={formModalOpen}
             onClose={() => {
                setFormModelOpen(false)
+               fetchContents() // re-fetch when modal closes after adding new content
             }}
          />
          <CreateBrainModal
             open={shareModalOpen}
-            onClose={() => {
-               setShareModalOpen(false)
-            }}
-            onClick={() => {
-               handleShareBtn?.()
-            }}
+            onClose={() => setShareModalOpen(false)}
+            onClick={handleShareBtn}
          />
-         <div className=" w-full h-fit">
-            <div className="mt-8 mx-10 ">
-               <div className="flex justify-between ">
-                  <div className="flex justify-center items-center">
-                     <h1 className="font-bold text-3xl">{filter}</h1>
-                  </div>
+         <div className="w-full h-fit">
+            <div className="mt-8 mx-10">
+               <div className="flex justify-between">
+                  <h1 className="font-bold text-3xl">{filter}</h1>
                   <div className="flex gap-3">
                      <Button
                         variant="secondary"
@@ -77,17 +68,13 @@ export const MainContent = () => {
                         startIcon={
                            <ShareIcon size="size-5" color="currentColor" />
                         }
-                        onClick={() => {
-                           setShareModalOpen(true)
-                        }}
+                        onClick={() => setShareModalOpen(true)}
                      />
                      <Button
                         variant="primary"
                         text="Add Content"
                         startIcon={<PlusIcon />}
-                        onClick={() => {
-                           setFormModelOpen(true)
-                        }}
+                        onClick={() => setFormModelOpen(true)}
                      />
                      <Button
                         variant="danger"
@@ -97,11 +84,11 @@ export const MainContent = () => {
                   </div>
                </div>
             </div>
-            {/* Card Component */}
             <div className="grid grid-cols-3 px-10">
-               {filteredContents?.map(
-                  ({ _id, link, type, title, tags, date }: CardProps) => (
+               {filteredContents.map(
+                  ({ _id, link, type, title, tags, date }) => (
                      <Card
+                        key={_id}
                         _id={_id}
                         type={type}
                         link={link}

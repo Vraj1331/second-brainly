@@ -8,76 +8,73 @@ export const brainRouter = express.Router()
 
 brainRouter.post('/share', UserMiddleWare, async (req, res) => {
    const share = req.body.share
-   console.log(share)
    const id = nanoid(16)
 
    if (share) {
-      const checkHash = await Links.findOne({
-         userId: req.userId,
-      })
+      const checkHash = await Links.findOne({ userId: req.userId })
 
-      const oldHash = checkHash?.hash
       if (checkHash) {
          return res.status(ResponseCode.Success).json({
             msg: 'Already Enabled share',
-            oldHash,
+            oldHash: checkHash.hash,
          })
       }
 
       try {
-         const createLink = await Links.create({
-            hash: 3,
+         await Links.create({
+            hash: id,
             userId: req.userId,
+         })
+
+         return res.status(ResponseCode.Success).json({
+            msg: 'Enabled share',
+            id,
          })
       } catch (error) {
          console.error(error)
+         return res.status(ResponseCode.ServerError).json({
+            msg: 'Something went wrong while enabling share',
+         })
       }
-
-      res.status(ResponseCode.Success).json({
-         msg: 'Enabled share',
-         id,
-      })
    } else {
       try {
-         const deleteHash = await Links.findOneAndDelete({
-            userId: req.userId,
-         })
-         res.status(ResponseCode.Success).json({
+         await Links.findOneAndDelete({ userId: req.userId })
+         return res.status(ResponseCode.Success).json({
             msg: 'Disabled share',
          })
       } catch (error) {
          console.error(error)
+         return res.status(ResponseCode.ServerError).json({
+            msg: 'Something went wrong while disabling share',
+         })
       }
    }
 })
+
 brainRouter.get('/:shareLink', async (req, res) => {
    const hash = req.params.shareLink
 
-   const findHash = await Links.findOne({
-      hash: hash,
-   })
-
+   const findHash = await Links.findOne({ hash })
    if (!findHash) {
-      res.status(ResponseCode.NotFound).json({
+      return res.status(ResponseCode.NotFound).json({
          msg: 'Incorrect hash',
       })
    }
 
    try {
       const [returnContent, userData] = await Promise.all([
-         Content.find({
-            userId: findHash?.userId,
-         }).populate('tags', 'title'),
-         Users.findOne({
-            _id: findHash?.userId,
-         }),
+         Content.find({ userId: findHash.userId }).populate('tags', 'title'),
+         Users.findOne({ _id: findHash.userId }),
       ])
-      const userName = userData?.fullName
-      res.status(ResponseCode.Success).json({
-         username: userName,
+
+      return res.status(ResponseCode.Success).json({
+         username: userData?.fullName,
          content: returnContent,
       })
    } catch (error) {
       console.error(error)
+      return res.status(ResponseCode.ServerError).json({
+         msg: 'Something went wrong while fetching content',
+      })
    }
 })
