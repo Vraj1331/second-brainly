@@ -32,7 +32,7 @@ brainRouter.post('/share', UserMiddleWare, async (req, res) => {
          })
       } catch (error) {
          console.error(error)
-         return res.status(ResponseCode.ServerError).json({
+         return res.status(ResponseCode.Error).json({
             msg: 'Something went wrong while enabling share',
          })
       }
@@ -44,7 +44,7 @@ brainRouter.post('/share', UserMiddleWare, async (req, res) => {
          })
       } catch (error) {
          console.error(error)
-         return res.status(ResponseCode.ServerError).json({
+         return res.status(ResponseCode.Error).json({
             msg: 'Something went wrong while disabling share',
          })
       }
@@ -73,7 +73,7 @@ brainRouter.get('/:shareLink', async (req, res) => {
       })
    } catch (error) {
       console.error(error)
-      return res.status(ResponseCode.ServerError).json({
+      return res.status(ResponseCode.Error).json({
          msg: 'Something went wrong while fetching content',
       })
    }

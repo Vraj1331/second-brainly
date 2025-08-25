@@ -29,7 +29,7 @@ export const UserMiddleWare = async (
    }
 
    const extractToken = header.split(' ')[1]
-
+   
    if (!extractToken) {
       return res.status(ResponseCode.NotFound).json({
          msg: 'Token missing',
@@ -51,6 +51,7 @@ export const UserMiddleWare = async (
             msg: 'Incorrect token',
          })
       }
+      
       req.userId = extractUserId.id
       next()
    } catch (error) {

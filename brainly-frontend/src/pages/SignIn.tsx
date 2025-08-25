@@ -29,6 +29,7 @@ export const SignIn = () => {
 
          console.log(res)
          const jwt = res.data.token
+         console.log(jwt)
          localStorage.setItem('token', jwt)
 
          navigate('/home')
@@ -41,7 +42,7 @@ export const SignIn = () => {
       <div className="h-screen w-full bg-[#F9FBFC]">
          <div className="flex items-center gap-1 mt-2 ml-3 pb-5 justify-center border-b  border-neutral-200">
             <img src={Logo} className="w-14 h-14 " />
-            <span className="text-4xl font-semibold pt-1">Second Brain</span>
+            <span className="text-4xl font-semibold pt-1">Third Brain</span>
          </div>
 
          <div className="mt-10">
