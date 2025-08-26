@@ -22,14 +22,14 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                script {
-                    echo "Building Docker image ${DOCKER_IMAGE}:${DOCKER_TAG}"
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
-            }
+      stage('Build Docker Image') {
+    steps {
+        script {
+            echo "Building Docker image ${DOCKER_IMAGE}:${DOCKER_TAG}"
+            sh "docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} ."
         }
+    }
+}
 
         stage('Run Container') {
             steps {
