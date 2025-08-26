@@ -1,7 +1,9 @@
-
 version: '3.8'
 
 services:
+  # ---------------------
+  # MongoDB
+  # ---------------------
   mongo:
     image: mongo:latest
     container_name: second-brainly-mongo
@@ -17,6 +19,9 @@ services:
     networks:
       - second-brainly-network
 
+  # ---------------------
+  # Mongo Express
+  # ---------------------
   mongo-express:
     image: mongo-express:latest
     container_name: second-brainly-mongo-express
@@ -32,6 +37,9 @@ services:
     networks:
       - second-brainly-network
 
+  # ---------------------
+  # Backend
+  # ---------------------
   backend:
     build:
       context: ./backend
@@ -53,6 +61,9 @@ services:
       - ./backend:/app
       - /app/node_modules
 
+  # ---------------------
+  # Frontend
+  # ---------------------
   frontend:
     build:
       context: ./brainly-frontend
@@ -71,8 +82,26 @@ services:
       - ./brainly-frontend:/app
       - /app/node_modules
 
+  # ---------------------
+  # Jenkins
+  # ---------------------
+  jenkins:
+    build:
+      context: ./jenkins  # folder containing Dockerfile.jenkins
+    container_name: jenkins
+    restart: unless-stopped
+    ports:
+      - "8080:8080"   # Jenkins UI
+      - "50000:50000" # Jenkins agent port
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock  # Give Jenkins access to host Docker
+    networks:
+      - second-brainly-network
+
 volumes:
   mongo_data:
+  jenkins_home:
 
 networks:
   second-brainly-network:
